@@ -1,0 +1,31 @@
+---
+- hosts: appservers
+  become: true
+  vars:
+    home: /home/domains
+
+  tasks:
+    - file:
+        path: /home/domains/{{domain}}
+        state: directory
+        mode: 0755
+    - file:
+        path: /data/{{domain}}
+        state: directory
+        mode: 0777
+    - file:
+        path: /data/{{domain}}/config
+        state: directory
+        mode: 0777
+    - file:
+        path: /data/backups/{{domain}}
+        state: directory
+        mode: 0755
+    - stat: path={{ home }}/{{domain}}/docker-compose.yml
+      register: st
+    - template: src=docker-compose.yml.tpl dest={{ home }}/{{domain}}/docker-compose.yml
+      when: not st.stat.exists
+    - stat: path=/data/{{domain}}/config/odoo.conf
+      register: st
+    - template: src=odoo.conf.tpl dest=/data/{{domain}}/config/odoo.conf
+      when: not st.stat.exists

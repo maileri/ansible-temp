@@ -1,0 +1,23 @@
+---
+- hosts: webservers
+  become: true
+
+  vars:
+    nginx_path: /etc/nginx
+    nginx_sites: /etc/nginx/conf.d
+  tasks:
+    - name: Setup nginx vhost
+      template:
+        src=domain.conf.tpl
+        dest={{ nginx_sites }}/https-{{domain}}.conf
+    - name: Verify Nginx config
+      become: yes
+      command: nginx -t
+      changed_when: false
+
+      notify: restart nginx
+  handlers:
+    - name: restart nginx
+      service:
+        name=nginx
+        state=restarted

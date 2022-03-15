@@ -1,0 +1,31 @@
+version: '2'
+services:
+  web:
+    image: odoo:11
+    restart: always
+    depends_on:
+      - {{dbname}}
+    ports:
+      - "{{odoo_port}}:8069"
+    volumes:
+      - /data/{{domain}}/web-data:/var/lib/odoo:z
+      - /data/{{domain}}/config:/etc/odoo:z
+      - /data/{{domain}}/addons:/mnt/extra-addons:z
+    environment:
+      - DB_HOST=10.140.68.31
+      - DB_PORT_5432_TCP_ADDR=10.140.68.31
+      - DB_USER={{dbuser}}
+      - DB_ENV_POSTGRES_USER={{dbuser}}
+      - DB_PASS={{dbpassword}}
+      - DB_ENV_POSTGRES_PASSWORD={{dbpassword}}
+      - DB_NAME={{dbname}}
+      - ADMIN_PASSWD=Lupiini.16
+  {{dbname}}:
+    image: postgres:9.6
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD={{dbpassword}}
+      - POSTGRES_USER={{dbuser}}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - /data/{{domain}}/db-data:/var/lib/postgresql/data/pgdata:z
